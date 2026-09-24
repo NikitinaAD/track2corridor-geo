@@ -55,7 +55,6 @@ def test_cli_writes_three_layers_and_diagnostics(tmp_path):
         "--corridor-width", "4", "--cell-size", "1", "--min-branch-length", "2",
         "--output", str(output), "--diagnostics", str(diagnostics),
     ]) == 0
-    import fiona
-    assert set(fiona.listlayers(output)) == {"footprint", "centerline", "corridor"}
-    assert len(gpd.read_file(output, layer="centerline")) == 1
+    for layer in ("footprint", "centerline", "corridor"):
+        assert len(gpd.read_file(output, layer=layer)) == 1
     assert '"graph_edges"' in diagnostics.read_text(encoding="utf-8")

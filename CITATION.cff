@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use track2corridor-geo, please cite this software."
+title: "track2corridor-geo"
+version: 0.1.0
+date-released: 2026-09-24
+authors:
+  - family-names: Nikitina
+    given-names: Alena
+license: Apache-2.0
+

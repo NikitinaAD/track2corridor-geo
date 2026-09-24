@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="260" viewBox="0 0 760 260">
+  <rect width="760" height="260" fill="#f8fafc"/>
+  <text x="150" y="35" text-anchor="middle" font-family="sans-serif" font-size="18">Track points</text>
+  <path d="M45 185 C85 55 190 225 300 75" fill="none" stroke="#cbd5e1" stroke-width="30" stroke-linecap="round"/>
+  <path d="M45 185 C85 55 190 225 300 75" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"/>
+  <path d="M350 130h55" stroke="#334155" stroke-width="5"/>
+  <path d="M395 117l18 13-18 13" fill="none" stroke="#334155" stroke-width="5"/>
+  <text x="590" y="35" text-anchor="middle" font-family="sans-serif" font-size="18">Auditable corridor</text>
+  <path d="M465 185 C505 55 610 225 720 75" fill="none" stroke="#86efac" stroke-width="36" stroke-linecap="butt"/>
+  <path d="M465 185 C505 55 610 225 720 75" fill="none" stroke="#166534" stroke-width="3"/>
+  <text x="150" y="242" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#475569">ordered noisy observations</text>
+  <text x="590" y="242" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#475569">footprint · centerline · polygon</text>
+</svg>
+

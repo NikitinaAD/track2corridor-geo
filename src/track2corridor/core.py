@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
 import math
+from dataclasses import asdict, dataclass
 
 import networkx as nx
 import numpy as np
 from pyproj import CRS
-from shapely import contains_xy, line_merge, union_all
-from shapely.geometry import LineString, MultiPoint
+from shapely import buffer, line_merge, union_all
+from shapely import points as make_points
+from shapely.geometry import LineString
+from skimage.draw import disk
 from skimage.morphology import skeletonize
 
 
@@ -69,7 +71,9 @@ def _validate_options(options: CorridorOptions) -> float:
         "extend_endpoints": options.extend_endpoints,
     }
     if any(not math.isfinite(value) or value < 0 for value in numeric.values()):
-        raise ValueError("Widths, branch length and endpoint extension must be finite and non-negative")
+        raise ValueError(
+            "Widths, branch length and endpoint extension must be finite and non-negative"
+        )
     if options.footprint_width <= 0 or options.corridor_width <= 0:
         raise ValueError("Footprint and corridor widths must be positive")
     cell_size = options.cell_size or options.footprint_width / 16.0
@@ -171,8 +175,13 @@ def build_corridor(points, crs, options: CorridorOptions | None = None) -> Corri
     if not np.isfinite(coordinates).all():
         raise ValueError("points contain non-finite coordinates")
 
-    footprint = MultiPoint(coordinates).buffer(options.footprint_width / 2.0, quad_segs=8)
-    minx, miny, maxx, maxy = footprint.bounds
+    radius = options.footprint_width / 2.0
+    point_buffers = buffer(make_points(coordinates), radius, quad_segs=8)
+    footprint = union_all(point_buffers)
+    minimum = coordinates.min(axis=0) - radius
+    maximum = coordinates.max(axis=0) + radius
+    minx, miny = minimum
+    maxx, maxy = maximum
     columns = int(math.ceil((maxx - minx) / cell_size)) + 1
     rows = int(math.ceil((maxy - miny) / cell_size)) + 1
     cells = rows * columns
@@ -180,10 +189,14 @@ def build_corridor(points, crs, options: CorridorOptions | None = None) -> Corri
         raise ValueError(
             f"Raster would contain {cells:,} cells, above max_cells={options.max_cells:,}"
         )
-    xs = np.linspace(minx, maxx, columns)
-    ys = np.linspace(maxy, miny, rows)
-    grid_x, grid_y = np.meshgrid(xs, ys)
-    mask = contains_xy(footprint, grid_x, grid_y)
+    xs = minx + np.arange(columns) * cell_size
+    ys = maxy - np.arange(rows) * cell_size
+    mask = np.zeros((rows, columns), dtype=bool)
+    pixel_radius = radius / cell_size
+    for x, y in coordinates:
+        center = ((maxy - y) / cell_size, (x - minx) / cell_size)
+        rr, cc = disk(center, pixel_radius, shape=mask.shape)
+        mask[rr, cc] = True
     skeleton = skeletonize(mask)
     graph = _pixel_graph(skeleton, xs, ys)
     if graph.number_of_edges() == 0:
@@ -208,4 +221,3 @@ def build_corridor(points, crs, options: CorridorOptions | None = None) -> Corri
         centerline_parts=parts,
     )
     return CorridorResult(footprint, centerline, corridor, output_crs, diagnostics)
-

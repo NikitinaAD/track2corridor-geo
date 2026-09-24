@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
+from . import __version__
 from .core import CorridorOptions, build_corridor
-from .io import read_track, write_result
+from .io import load_track, write_result
 
 
 def parser() -> argparse.ArgumentParser:
@@ -14,6 +15,7 @@ def parser() -> argparse.ArgumentParser:
         prog="track2corridor",
         description="Build an auditable centerline and corridor from point tracks.",
     )
+    root.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     commands = root.add_subparsers(dest="command", required=True)
     build = commands.add_parser("build")
     build.add_argument("input", type=Path)
@@ -34,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
-        points, crs = read_track(
+        points, crs = load_track(
             args.input, layer=args.layer, crs=args.crs, time_field=args.time_field
         )
         options = CorridorOptions(
@@ -66,4 +68,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

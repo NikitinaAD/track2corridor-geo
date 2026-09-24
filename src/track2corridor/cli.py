@@ -7,7 +7,7 @@ from pathlib import Path
 
 from . import __version__
 from .core import CorridorOptions, build_corridor
-from .io import load_track, write_result
+from .io import read_track, write_result
 
 
 def parser() -> argparse.ArgumentParser:
@@ -36,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
-        points, crs = load_track(
+        points, crs = read_track(
             args.input, layer=args.layer, crs=args.crs, time_field=args.time_field
         )
         options = CorridorOptions(

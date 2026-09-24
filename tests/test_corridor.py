@@ -7,7 +7,7 @@ from shapely.geometry import Point
 
 from track2corridor import CorridorOptions, build_corridor
 from track2corridor.cli import main
-from track2corridor.io import load_track
+from track2corridor.io import read_track
 
 
 def test_straight_track_builds_valid_corridor():
@@ -71,7 +71,7 @@ def test_csv_las_and_vector_inputs_have_deterministic_order(tmp_path):
         csv_path,
         index=False,
     )
-    csv_points, csv_crs = load_track(csv_path, crs="EPSG:3857", time_field="time")
+    csv_points, csv_crs = read_track(csv_path, crs="EPSG:3857", time_field="time")
     assert csv_points[:, 0].tolist() == [0.0, 10.0, 20.0]
     assert csv_crs.to_epsg() == 3857
 
@@ -82,7 +82,7 @@ def test_csv_las_and_vector_inputs_have_deterministic_order(tmp_path):
     cloud.y = np.array([2.0, 0.0, 1.0])
     cloud.gps_time = np.array([3.0, 1.0, 2.0])
     cloud.write(las_path)
-    las_points, _ = load_track(las_path, crs="EPSG:3857")
+    las_points, _ = read_track(las_path, crs="EPSG:3857")
     assert las_points[:, 0].tolist() == [0.0, 10.0, 20.0]
 
     vector_path = tmp_path / "track.gpkg"
@@ -91,7 +91,7 @@ def test_csv_las_and_vector_inputs_have_deterministic_order(tmp_path):
         geometry=[Point(10, 1), Point(0, 0)],
         crs="EPSG:3857",
     ).to_file(vector_path, layer="track", driver="GPKG", index=False)
-    vector_points, vector_crs = load_track(vector_path, layer="track", time_field="time")
+    vector_points, vector_crs = read_track(vector_path, layer="track", time_field="time")
     assert vector_points[:, 0].tolist() == [0.0, 10.0]
     assert vector_crs.to_epsg() == 3857
 
@@ -100,7 +100,7 @@ def test_input_errors_are_explicit(tmp_path):
     bad_csv = tmp_path / "bad.csv"
     bad_csv.write_text("east,north\n0,0\n", encoding="utf-8")
     with pytest.raises(ValueError, match="x and y"):
-        load_track(bad_csv, crs="EPSG:3857")
+        read_track(bad_csv, crs="EPSG:3857")
     with pytest.raises(ValueError, match="N×2"):
         build_corridor([[0, 0]], "EPSG:3857")
 

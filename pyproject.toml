@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "track2corridor-geo"
 version = "0.1.1"
-description = "Build an auditable centerline and corridor from noisy survey-track points"
+description = "Build an auditable centerline and corridor from ground mobile-mapping trajectory points"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"

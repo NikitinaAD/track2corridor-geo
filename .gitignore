@@ -9,6 +9,8 @@ dist/
 .test-tmp*/
 .wheel-check/
 uv.lock
+examples/generated/
+# Legacy locations produced by the original one-case example.
 examples/corridor.gpkg
 examples/diagnostics.json
 examples/noisy-track.csv

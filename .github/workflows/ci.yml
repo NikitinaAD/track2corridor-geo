@@ -16,28 +16,30 @@ jobs:
         python: ["3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install -e ".[test]"
       - run: python -m ruff check .
       - run: python -m ruff format --check .
       - run: python -m pytest
+      - run: python examples/run_examples.py
 
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - run: python -m pip install build twine
       - run: python -m build
       - run: python -m twine check dist/*
-      - run: python -m pip install --force-reinstall dist/*.whl
-      - run: track2corridor --version
-      - run: track2corridor --help
+      - run: python -m venv .wheel-check
+      - run: .wheel-check/bin/python -m pip install dist/*.whl
+      - run: .wheel-check/bin/track2corridor --version
+      - run: .wheel-check/bin/track2corridor --help
 
   required:
     if: always()

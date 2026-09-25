@@ -5,9 +5,13 @@
 [![Python](https://img.shields.io/pypi/pyversions/track2corridor-geo.svg)](https://pypi.org/project/track2corridor-geo/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Build an auditable centerline and corridor from noisy survey-track points.**
+**Build an auditable centerline and corridor from ground mobile laser-scanning
+(MLS) trajectory points.**
 
-`track2corridor` converts ordered points into a buffered footprint, raster
+Here, a *noisy track* means ordered trajectory coordinates with positional
+scatter, short side deviations, or gaps around the route actually travelled. It
+does not mean the complete laser point cloud. `track2corridor` converts those
+ordered trajectory points into a buffered footprint, raster
 skeleton, NetworkX graph, centerline, and fixed-width corridor. It exposes every
 intermediate geometry and a diagnostics report instead of hiding algorithmic
 warnings behind a single polygon.
@@ -32,18 +36,33 @@ track2corridor build track.csv --crs EPSG:32637 --output corridor.gpkg
 
 ## Reproducible example
 
-Create a deterministic noisy S-shaped track, then build its corridor:
+Generate and process three deterministic trajectory scenarios plus equivalent
+CSV, LAZ, and GeoPackage inputs:
 
 ```bash
-python examples/make_example.py
-track2corridor build examples/noisy-track.csv \
-  --crs EPSG:3857 \
+python examples/run_examples.py
+```
+
+| scenario | purpose | expected diagnostic |
+|---|---|---|
+| `mls-s-track` | positional scatter around a smooth MLS trajectory | one connected graph component |
+| `disconnected` | a gap wider than the point footprint | two graph components and centerline parts |
+| `short-spur` | a short side deviation from the main route | branch-pruning behavior is recorded |
+| `format-track` | identical ordered points in CSV, LAZ, and GeoPackage | all readers return the same coordinates |
+
+Generated inputs, outputs, and diagnostics are placed under
+`examples/generated/`. To run the standard case through the CLI:
+
+```bash
+track2corridor build examples/generated/mls-s-track.csv \
+  --crs EPSG:32637 \
+  --time-field sequence \
   --footprint-width 14 \
   --corridor-width 6 \
   --cell-size 1 \
   --min-branch-length 4 \
-  --output examples/corridor.gpkg \
-  --diagnostics examples/diagnostics.json
+  --output examples/generated/mls-s-track-cli.gpkg \
+  --diagnostics examples/generated/mls-s-track-cli.json
 ```
 
 The GeoPackage contains three inspectable layers:
@@ -103,6 +122,9 @@ print(result.diagnostics.to_dict())
 
 Run `track2corridor --help` for all options. Exit code `0` means success and `2`
 means invalid input or a processing failure.
+
+The pre-release and launch checks are listed in
+[`docs/release-checklist.md`](docs/release-checklist.md).
 
 ## Development
 

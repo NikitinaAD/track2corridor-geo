@@ -13,7 +13,10 @@ from .io import read_track, write_result
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(
         prog="track2corridor",
-        description="Build an auditable centerline and corridor from point tracks.",
+        description=(
+            "Build an auditable centerline and corridor from ground mobile-mapping "
+            "trajectory points."
+        ),
     )
     root.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     commands = root.add_subparsers(dest="command", required=True)

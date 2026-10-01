@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1 — unreleased
+## 0.1.1 — 2026-10-01
 
 - Fixed the clean-environment GeoPackage test.
 - Documented layers, diagnostics, parameters, input ordering, and limits.
